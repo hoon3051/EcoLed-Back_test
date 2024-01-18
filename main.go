@@ -6,7 +6,6 @@ import (
 
 	"github.com/Eco-Led/EcoLed-Back_test/controllers"
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
-	"net/smtp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,13 +15,6 @@ func init() {
 	initializers.ConnectToDB()
 	initializers.SyncDB()
 }
-
-func sendEmail() {
-	smtp.PlainAuth(
-		"",
-		"hoon30512329@gmail.com",
-		""
-	)
 
 func main() {
 	fmt.Println("EcoLed!!")
