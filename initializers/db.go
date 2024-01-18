@@ -1,0 +1,41 @@
+package initializers
+
+import (
+	"os"
+
+	"github.com/Eco-Led/EcoLed-Back_test/logger"
+	"github.com/Eco-Led/EcoLed-Back_test/models"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+)
+
+var DB *gorm.DB
+
+func InitDB() {
+	ConnectDB()
+	SyncDB()
+}
+
+func ConnectDB() {
+	logger.Info.Println("Connect to Database")
+
+	var err error
+
+	dsn := os.Getenv("DB_URL")
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		logger.Error.Println("Failed to connect to DB")
+		os.Exit(-1)
+	}
+}
+
+func SyncDB() {
+	logger.Debug.Println("Synchronization to Database")
+
+	DB.AutoMigrate(&models.Users{})
+	DB.AutoMigrate(&models.Profiles{})
+	DB.AutoMigrate(&models.Accounts{})
+	DB.AutoMigrate(&models.Paylogs{})
+}
