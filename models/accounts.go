@@ -6,14 +6,13 @@ import (
 
 type Accounts struct {
 	gorm.Model
-	Bank            string
-	Number          int64 `gorm:"uniqueIndex"`
+	Name            string
 	Balance         int64
-	Total_eco_score float64
+	Total_ecoscore  float64
 
-	// users: OneToOne mapping
+	// From Users: OneToOne mapping
 	User_id uint `gorm:"uniqueIndex"`
 
-	// paylogs: OneToMany mapping
+	// To Paylogs: OneToMany mapping
 	Paylogs []Paylogs `gorm:"foreignkey:Account_id"`
 }

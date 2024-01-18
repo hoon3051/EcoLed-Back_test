@@ -9,8 +9,12 @@ type Users struct {
 	Email    string `gorm:"uniqueIndex"`
 	Password string
 
-	// usersprofiles: OneToOne mapping
+	// To Profiles: OneToOne mapping
 	Profiles Profiles `gorm:"foreignkey:User_id"`
-	// accounts: OneToOne mapping
+
+	// To Accounts: OneToOne mapping
 	Accounts Accounts `gorm:"foreignkey:User_id"`
+
+	// To Posts: OneToMany mapping
+	Posts []Posts `gorm:"foreignKey:User_id"`
 }

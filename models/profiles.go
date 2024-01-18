@@ -11,6 +11,6 @@ type Profiles struct {
 	Profile_image string
 	Introduce     string
 
-	// users: OneToOne mapping
+	// From Users: OneToOne mapping
 	User_id uint `gorm:"uniqueIndex"`
 }
