@@ -16,6 +16,7 @@ func init() {
 func main() {
 	router := routers.RouterSetupV1()
 
+
 	port := os.Getenv("PORT")
 	logger.Info.Println("Server listening in port: ", port)
 	router.Run(":" + port) // TODO : add SSL, TLS connect
