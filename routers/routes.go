@@ -1,20 +1,17 @@
 package routers
 
 import (
-	"github.com/Eco-Led/EcoLed-Back_test/controllers/auth"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/Eco-Led/EcoLed-Back_test/controllers"
 )
 
-func GoogleAuthRoutes(router *gin.Engine, apiVersion string) {
-	router.GET(apiVersion+"auth/google/login", auth.GoogleLoginHandler)
-	router.GET(apiVersion+"auth/google/callback", auth.GoogleAuthCallback)
-}
+var userController = new(controllers.UserControllers)
 
 func AuthRoutes(router *gin.Engine, apiVersion string) {
-	router.POST(apiVersion + "/login" /* Not Implemented */)
-	router.POST(apiVersion + "/register" /* Not Implemented */)
-	router.GET(apiVersion + "/logout" /* Not Implemented */)
+	router.POST(apiVersion+"/login", userController.Login)
+	router.POST(apiVersion+"/register", userController.Register)
+	router.GET(apiVersion+"/logout", userController.Logout)
 }
 
 func RouterSetupV1() *gin.Engine {
@@ -24,7 +21,6 @@ func RouterSetupV1() *gin.Engine {
 	r.Group(apiVersion)
 	{
 		AuthRoutes(r, apiVersion)
-		GoogleAuthRoutes(r, apiVersion)
 	}
 
 	return r
