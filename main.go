@@ -1,34 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/Eco-Led/EcoLed-Back_test/controllers"
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
-
-	"github.com/gin-gonic/gin"
+	"github.com/Eco-Led/EcoLed-Back_test/logger"
+	"github.com/Eco-Led/EcoLed-Back_test/routers"
 )
 
 func init() {
-	initializers.LoadEnvVariables()
-	initializers.ConnectToDB()
-	initializers.SyncDB()
+	initializers.LoadDotEnv()
+	initializers.InitDB()
 }
 
 func main() {
-	fmt.Println("EcoLed!!")
+	router := routers.RouterSetupV1()
 
-	credPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-	if credPath == "" {
-		fmt.Println("GOOGLE_APPLICATION_CREDENTIALS is not set")
-	} else {
-		fmt.Println("GOOGLE_APPLICATION_CREDENTIALS:", credPath)
-	}
-
-	router := gin.Default()
-
-	controllers.AuthRoutes(router)
-
-	router.Run()
+	port := os.Getenv("PORT")
+	logger.Info.Println("Server listening in port: ", port)
+	router.Run(":" + port) // TODO : add SSL, TLS connect
 }
