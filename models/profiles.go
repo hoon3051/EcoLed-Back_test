@@ -6,7 +6,7 @@ import (
 
 type Profiles struct {
 	gorm.Model
-	Nickname      string `gorm:"uniqueIndex"`
+	Nickname      string
 	Age           int16
 	Profile_image string
 	Introduce     string

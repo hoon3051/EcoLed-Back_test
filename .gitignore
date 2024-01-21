@@ -22,4 +22,5 @@ go.work
 
 
 # EDIT
+.env_dev
 .env

@@ -6,7 +6,7 @@ import (
 
 type Users struct {
 	gorm.Model
-	Email    string `gorm:"uniqueIndex"`
+	Email    string
 	Password string
 
 	// To Profiles: OneToOne mapping
