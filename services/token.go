@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"errors"
 
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
 	jwt "github.com/golang-jwt/jwt/v4"
@@ -77,4 +78,31 @@ func (svc TokenServices) SaveToken(userid int64, td *TokenDetails) (err error) {
 		return errRefresh
 	}
 	return nil
+}
+
+func (svc TokenServices) ExtractTokenID(tokenString string) (int64, error) {
+	// Parse token
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("ACCESS_SECRET")), nil
+	})
+
+	// Check token
+	if err != nil {
+		return 0, err
+	}
+
+	// Get userID from token
+	userIDValue, ok := claims["user_id"]
+	if !ok {
+		return 0, errors.New("user_id not found in token")
+	}
+
+	// Change type to float64
+	userIDFloat, ok := userIDValue.(float64)
+	if !ok {
+		return 0, errors.New("user_id is not a float64")
+	}
+
+	return int64(userIDFloat), nil
 }

@@ -37,7 +37,7 @@ func (ctr UserControllers) Login(c *gin.Context) {
 		"token": token,
 	})
 
-	return
+
 }
 
 func (ctr UserControllers) Register(c *gin.Context) {
@@ -65,9 +65,8 @@ func (ctr UserControllers) Register(c *gin.Context) {
 		"message": "Register Success",
 	})
 
-	return
+
 }
 
 func (ctr UserControllers) Logout(c *gin.Context) {
-	return
 }
