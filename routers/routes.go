@@ -10,6 +10,8 @@ import (
 var userController = new(controllers.UserControllers)
 var profileController = new(controllers.ProfileControllers)
 var imageController = new(controllers.ImageControllers)
+var accountController = new(controllers.AccountControllers)
+var paylogController = new(controllers.PaylogControllers)
 
 func AuthRoutes(router *gin.Engine, apiVersion string) {
 	router.POST(apiVersion+"/login", userController.Login)
@@ -28,6 +30,17 @@ func ImageRoutes(router *gin.Engine, apiVersion string) {
 	router.POST(apiVersion+"/upload", imageController.UploadImage)
 }
 
+func AccountRoutes(router *gin.Engine, apiVersion string) {
+	router.Use(middlewares.AuthToken())
+	router.GET(apiVersion+"/account", accountController.GetAccount)
+}
+
+func PaylogRoutes(router *gin.Engine, apiVersion string) {
+	router.Use(middlewares.AuthToken())
+	router.POST(apiVersion+"/paylog", paylogController.CreatePaylog)
+	router.PUT(apiVersion+"/paylog/:paylogID", paylogController.UpdatePaylog)
+}
+
 func RouterSetupV1() *gin.Engine {
 	r := gin.Default()
 
@@ -37,6 +50,8 @@ func RouterSetupV1() *gin.Engine {
 		AuthRoutes(r, apiVersion)
 		ProfileRoutes(r, apiVersion)
 		ImageRoutes(r, apiVersion)
+		AccountRoutes(r, apiVersion)
+		PaylogRoutes(r, apiVersion)
 	}
 
 	return r

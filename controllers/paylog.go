@@ -1,0 +1,111 @@
+package controllers
+
+import (
+	"github.com/Eco-Led/EcoLed-Back_test/services"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"strconv"
+)
+
+type PaylogControllers struct{}
+
+var paylogService = new(services.PaylogServices)
+
+func (ctr PaylogControllers) CreatePaylog(c *gin.Context) {
+	// Bind paylogForm from JSON
+	var paylogForm services.PaylogForm
+	if err := c.ShouldBindJSON(&paylogForm); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Get userID from token & Chage type to uint
+	userIDInterface, ok := c.Get("user_id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get userIDInterface",
+		})
+		return
+	}
+
+	userIDInt64, ok := userIDInterface.(int64)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to convert userID into int64",
+		})
+		return
+	}
+	userID := uint(userIDInt64)
+
+	// Create paylog (service)
+	err := paylogService.CreatePaylog(userID, paylogForm)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Create Success",
+	})
+
+}
+
+func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
+	// Get paylogID from param
+	paylogIDstring := c.Param("paylogID")
+	paylogIDint64, err := strconv.ParseUint(paylogIDstring, 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get paylogID",
+		})
+		return
+	}
+	paylogID := uint(paylogIDint64)
+
+
+	// Get userID from token & Chage type to uint
+	userIDInterface, ok := c.Get("user_id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get userIDInterface",
+		})
+		return
+	}
+
+	userIDInt64, ok := userIDInterface.(int64)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to convert userID into int64",
+		})
+		return
+	}
+	userID := uint(userIDInt64)
+
+	// Get paylogForm from JSON
+	var paylogForm services.PaylogForm
+	if err := c.ShouldBindJSON(&paylogForm); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Update paylog (service)
+	error := paylogService.UpdatePaylog(userID, paylogID, paylogForm)
+	if error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Response paylog
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Update Success",
+	})
+
+}
