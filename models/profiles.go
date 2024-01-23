@@ -10,7 +10,7 @@ type Profiles struct {
 	Nickname      string `gorm:"unique"`
 	Age           *int
 	Profile_image *string
-	Introduce     *string
+	Introduce     string
 
 	// From Users: OneToOne mapping
 	User_id uint `gorm:"uniqueIndex"`

@@ -10,7 +10,7 @@ import (
 type ProfileForm struct {
 	Nickname 		string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
 	Age	  	 		*int    `form: "age" json: "age" binding: "required, min=0, max=150"`
-	Introduce 		*string `form: "introduce" json: "introduce" binding: "required"`
+	Introduce 		string `form: "introduce" json: "introduce" binding: "required"`
 }
 
 type ProfileServices struct{}
