@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Age, Profile_image, Introduce can be null so use pointer(*) type
 type Profiles struct {
 	gorm.Model
 	Nickname      string `gorm:"unique"`
