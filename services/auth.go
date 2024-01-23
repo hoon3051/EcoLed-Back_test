@@ -24,9 +24,10 @@ type LoginForm struct {
 
 // Register service's input value (from body)
 type RegisterForm struct {
-	Email    string `form: "email" json: "email" binding: "required, email"`
-	Password string `form: "password" json: "password" binding: "required, min=6, max=30"`
-	Nickname string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
+	Email    	string `form: "email" json: "email" binding: "required, email"`
+	Password 	string `form: "password" json: "password" binding: "required, min=6, max=30"`
+	Nickname 	string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
+	Accountname string `form: "accountname" json: "accountname" binding: "required, min=2, max=30"`
 }
 
 type UserServices struct{}
@@ -152,6 +153,16 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 	})
 	if result.Error != nil {
 		err := errors.New("Failed to create profile")
+		return err
+	}
+
+	// Create account
+	result = initializers.DB.Create(&models.Accounts{
+		Name: registerForm.Accountname,
+		User_id:   user.ID,
+	})
+	if result.Error != nil {
+		err := errors.New("Failed to create account")
 		return err
 	}
 
