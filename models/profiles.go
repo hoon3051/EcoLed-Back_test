@@ -8,7 +8,7 @@ import (
 type Profiles struct {
 	gorm.Model
 	Nickname      string `gorm:"unique"`
-	Age           *int
+	Age           int
 	Profile_image *string
 	Introduce     string
 

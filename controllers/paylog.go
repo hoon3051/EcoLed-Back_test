@@ -57,8 +57,8 @@ func (ctr PaylogControllers) CreatePaylog(c *gin.Context) {
 func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
 	// Get paylogID from param
 	paylogIDstring := c.Param("paylogID")
-	paylogIDint64, err := strconv.ParseUint(paylogIDstring, 10, 64)
-	if err != nil {
+	paylogIDint64, err1 := strconv.ParseUint(paylogIDstring, 10, 64)
+	if err1 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get paylogID",
 		})
@@ -87,18 +87,19 @@ func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
 
 	// Get paylogForm from JSON
 	var paylogForm services.PaylogForm
-	if err := c.ShouldBindJSON(&paylogForm); err != nil {
+	if err2 := c.ShouldBindJSON(&paylogForm); err2 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": err2.Error(),
 		})
 		return
 	}
 
 	// Update paylog (service)
-	error := paylogService.UpdatePaylog(userID, paylogID, paylogForm)
-	if error != nil {
+	var err3 error
+	err3 = paylogService.UpdatePaylog(userID, paylogID, paylogForm)
+	if err3 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": err3.Error(),
 		})
 		return
 	}

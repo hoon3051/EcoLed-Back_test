@@ -76,6 +76,16 @@ func (svc PaylogServices) UpdatePaylog(userID uint, paylogID uint, paylog Paylog
 		return err
 	}
 
+	//Check if paylog is owned by user
+	if paylogModel.Account_id != account.ID {
+		err := errors.New("Paylog is not owned by user")
+		return err
+	}
+
+	// Save last ecoscore and cost
+	var lastEcoscore float64 = paylogModel.Ecoscore
+	var lastCost int64 = paylogModel.Cost
+
 	// Update paylog
 	paylogModel.Date = paylog.Date
 	paylogModel.Time = paylog.Time
@@ -92,8 +102,12 @@ func (svc PaylogServices) UpdatePaylog(userID uint, paylogID uint, paylog Paylog
 	}
 
 	//Update account
+	account.Total_ecoscore -= lastEcoscore
+	account.Balance += lastCost
+
 	account.Total_ecoscore += paylog.Ecoscore
 	account.Balance -= paylog.Cost
+
 	result = initializers.DB.Save(&account)
 	if result.Error != nil {
 		err := errors.New("Failed to update account")

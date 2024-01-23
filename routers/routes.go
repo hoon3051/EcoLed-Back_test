@@ -12,6 +12,7 @@ var profileController = new(controllers.ProfileControllers)
 var imageController = new(controllers.ImageControllers)
 var accountController = new(controllers.AccountControllers)
 var paylogController = new(controllers.PaylogControllers)
+var rankingController = new(controllers.RankingControllers)
 
 func AuthRoutes(router *gin.Engine, apiVersion string) {
 	router.POST(apiVersion+"/login", userController.Login)
@@ -41,6 +42,10 @@ func PaylogRoutes(router *gin.Engine, apiVersion string) {
 	router.PUT(apiVersion+"/paylog/:paylogID", paylogController.UpdatePaylog)
 }
 
+func RankingRoutes(router *gin.Engine, apiVersion string) {
+	router.GET(apiVersion+"/ranking", rankingController.GetRanking)
+}
+
 func RouterSetupV1() *gin.Engine {
 	r := gin.Default()
 
@@ -52,6 +57,7 @@ func RouterSetupV1() *gin.Engine {
 		ImageRoutes(r, apiVersion)
 		AccountRoutes(r, apiVersion)
 		PaylogRoutes(r, apiVersion)
+		RankingRoutes(r, apiVersion)
 	}
 
 	return r
