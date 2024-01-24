@@ -64,3 +64,31 @@ func (srv PostService) GetOnePost(postID uint) (models.Posts, error) {
 
 	return post, nil
 }
+
+func (srv PostService) UpdatePost(userID uint, postID uint, postForm PostForm) error{
+	//Check whether post is
+	var post models.Posts
+	result1 := initializers.DB.First(&post, postID)
+	if result1.Error != nil{
+		err := errors.New("There are no post that match postID")
+		return err
+	}
+
+	//Check whether post is user's post
+	if post.User_id != userID {
+		err := errors.New("You are not this post's creater")
+		return err
+	}
+
+	//Update post
+	post.Title = postForm.Title
+	post.Body = postForm.Body
+	result2 := initializers.DB.Save(&post)
+
+	if result2.Error != nil {
+		err := errors.New("Failed to update post")
+		return err
+	}
+
+	return nil
+}

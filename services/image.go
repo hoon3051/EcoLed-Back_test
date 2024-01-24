@@ -61,7 +61,7 @@ func (srv ImageService) UploadImage(ctx context.Context, file io.Reader, userID 
 			
 		case "ecoled_test_post_images": 
 			var post models.Posts
-			result1 := initializers.DB.Where("user_id = ?", userID).Last(&post)
+			result1 := initializers.DB.Where("user_id = ?", userID).Order("updated_at DESC").First(&post)
 			if result1.Error != nil {
 				err = errors.New("Failed to get last created post")
 				return imageURL, err

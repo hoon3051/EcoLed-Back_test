@@ -52,6 +52,7 @@ func PostRoutes(router *gin.Engine, apiVersion string) {
 	router.POST(apiVersion+"/post", postController.CreatePost)
 	router.GET(apiVersion+"/post", postController.GetUserPosts)
 	router.GET(apiVersion+"/post/:postID", postController.GetOnePost)
+	router.PUT(apiVersion+"/post/:postID", postController.UpdatePost)
 }
 
 func RouterSetupV1() *gin.Engine {
