@@ -1,10 +1,10 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"github.com/Eco-Led/EcoLed-Back_test/controllers"
 	"github.com/Eco-Led/EcoLed-Back_test/middlewares"
+
+	"github.com/gin-gonic/gin"
 )
 
 var userController = new(controllers.UserControllers)
@@ -30,6 +30,7 @@ func ProfileRoutes(router *gin.Engine, apiVersion string) {
 func ProfileImageRoutes(router *gin.Engine, apiVersion string) {
 	router.Use(middlewares.AuthToken())
 	router.POST(apiVersion+"/profileimage", profileimageController.UploadProfileImage)
+	router.DELETE(apiVersion+"/profileimage", profileimageController.DeleteProfileImage)
 }
 
 func AccountRoutes(router *gin.Engine, apiVersion string) {
@@ -41,6 +42,7 @@ func PaylogRoutes(router *gin.Engine, apiVersion string) {
 	router.Use(middlewares.AuthToken())
 	router.POST(apiVersion+"/paylog", paylogController.CreatePaylog)
 	router.PUT(apiVersion+"/paylog/:paylogID", paylogController.UpdatePaylog)
+	router.DELETE(apiVersion+"/paylog/:paylogID", paylogController.DeletePaylog)
 }
 
 func RankingRoutes(router *gin.Engine, apiVersion string) {
@@ -53,6 +55,7 @@ func PostRoutes(router *gin.Engine, apiVersion string) {
 	router.GET(apiVersion+"/post", postController.GetUserPosts)
 	router.GET(apiVersion+"/post/:postID", postController.GetOnePost)
 	router.PUT(apiVersion+"/post/:postID", postController.UpdatePost)
+	router.DELETE(apiVersion+"/post/:postID", postController.DeletePost)
 }
 
 func RouterSetupV1() *gin.Engine {

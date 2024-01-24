@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Eco-Led/EcoLed-Back_test/services"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,9 @@ func (ctr RankingControllers) GetRanking(c *gin.Context) {
 		return
 	}
 
+	// Response
 	c.JSON(http.StatusOK, gin.H{
 		"ranking": ranking,
 	})
+
 }

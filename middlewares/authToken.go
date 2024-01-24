@@ -2,8 +2,10 @@ package middlewares
 
 import (
 	"net/http"
-	"github.com/gin-gonic/gin"
+
 	"github.com/Eco-Led/EcoLed-Back_test/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 func AuthToken() gin.HandlerFunc {
@@ -31,6 +33,7 @@ func AuthToken() gin.HandlerFunc {
 		// Set userID to context
 		c.Set("user_id", userID)
 
+		// Next
 		c.Next()
 	}
 }

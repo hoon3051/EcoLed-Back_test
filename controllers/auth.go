@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Eco-Led/EcoLed-Back_test/services"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,9 +13,8 @@ type UserControllers struct{}
 var userService = new(services.UserServices)
 
 func (ctr UserControllers) Login(c *gin.Context) {
-	var loginForm services.LoginForm
-
 	// Bind JSON
+	var loginForm services.LoginForm
 	if err := c.ShouldBindJSON(&loginForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -37,13 +37,11 @@ func (ctr UserControllers) Login(c *gin.Context) {
 		"token": token,
 	})
 
-
 }
 
 func (ctr UserControllers) Register(c *gin.Context) {
-	var registerForm services.RegisterForm
-
 	// Bind JSON
+	var registerForm services.RegisterForm
 	if err := c.ShouldBindJSON(&registerForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -64,7 +62,6 @@ func (ctr UserControllers) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Register Success",
 	})
-
 
 }
 

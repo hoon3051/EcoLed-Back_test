@@ -9,7 +9,7 @@ type Profiles struct {
 	gorm.Model
 	Nickname      string `gorm:"unique"`
 	Age           int
-	Profile_image *string
+	Profile_image string
 	Introduce     string
 
 	// From Users: OneToOne mapping

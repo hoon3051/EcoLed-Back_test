@@ -6,6 +6,7 @@ import (
 
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
 	"github.com/Eco-Led/EcoLed-Back_test/models"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,15 +25,13 @@ type LoginForm struct {
 
 // Register service's input value (from body)
 type RegisterForm struct {
-	Email    	string `form: "email" json: "email" binding: "required, email"`
-	Password 	string `form: "password" json: "password" binding: "required, min=6, max=30"`
-	Nickname 	string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
+	Email       string `form: "email" json: "email" binding: "required, email"`
+	Password    string `form: "password" json: "password" binding: "required, min=6, max=30"`
+	Nickname    string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
 	Accountname string `form: "accountname" json: "accountname" binding: "required, min=2, max=30"`
 }
 
 type UserServices struct{}
-
-
 
 func (svc UserServices) Login(loginForm LoginForm) (user User, token Token, err error) {
 	//call by value (not call by reference)
@@ -84,7 +83,9 @@ func (svc UserServices) Login(loginForm LoginForm) (user User, token Token, err 
 		RefreshToken: td.RefreshToken,
 	}
 
+	// Return user, token
 	return user, token, err
+
 }
 
 func (svc UserServices) Register(registerForm RegisterForm) (err error) {
@@ -108,7 +109,7 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 
 	// Check whether the email is valid
 	regex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-    if regex.MatchString(registerForm.Email) == false {
+	if regex.MatchString(registerForm.Email) == false {
 		err := errors.New("Invalid email")
 		return err
 	}
@@ -125,8 +126,6 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 		return err
 	}
 
-	
-
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerForm.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -139,7 +138,6 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 		Email:    registerForm.Email,
 		Password: string(hashedPassword),
 	}
-
 	result := initializers.DB.Create(&user)
 	if result.Error != nil {
 		err := errors.New("Failed to create user")
@@ -149,7 +147,7 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 	// Create profile
 	result = initializers.DB.Create(&models.Profiles{
 		Nickname: registerForm.Nickname,
-		User_id:   user.ID,
+		User_id:  user.ID,
 	})
 	if result.Error != nil {
 		err := errors.New("Failed to create profile")
@@ -158,8 +156,8 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 
 	// Create account
 	result = initializers.DB.Create(&models.Accounts{
-		Name: registerForm.Accountname,
-		User_id:   user.ID,
+		Name:    registerForm.Accountname,
+		User_id: user.ID,
 	})
 	if result.Error != nil {
 		err := errors.New("Failed to create account")
@@ -167,6 +165,7 @@ func (svc UserServices) Register(registerForm RegisterForm) (err error) {
 	}
 
 	return nil
+	
 }
 
 func (svc UserServices) Logout() {

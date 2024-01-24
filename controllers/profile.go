@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"net/http"
-	"github.com/Eco-Led/EcoLed-Back_test/services"
-	"github.com/gin-gonic/gin"
 
+	"github.com/Eco-Led/EcoLed-Back_test/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ProfileControllers struct{}
@@ -12,9 +13,8 @@ type ProfileControllers struct{}
 var profileService = new(services.ProfileServices)
 
 func (ctr ProfileControllers) UpdateProfile(c *gin.Context) {
-	var profileForm services.ProfileForm
-
 	// Bind JSON
+	var profileForm services.ProfileForm
 	if err := c.ShouldBindJSON(&profileForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -30,7 +30,6 @@ func (ctr ProfileControllers) UpdateProfile(c *gin.Context) {
 		})
 		return
 	}
-
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -49,6 +48,7 @@ func (ctr ProfileControllers) UpdateProfile(c *gin.Context) {
 		return
 	}
 
+	// Response
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Profile updated successfully",
 	})
@@ -64,7 +64,6 @@ func (ctr ProfileControllers) GetProfile(c *gin.Context) {
 		})
 		return
 	}
-
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -83,7 +82,9 @@ func (ctr ProfileControllers) GetProfile(c *gin.Context) {
 		return
 	}
 
+	// Response
 	c.JSON(http.StatusOK, gin.H{
 		"profile": profile,
 	})
+	
 }

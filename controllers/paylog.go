@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"github.com/Eco-Led/EcoLed-Back_test/services"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/Eco-Led/EcoLed-Back_test/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PaylogControllers struct{}
@@ -75,7 +77,6 @@ func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
 		})
 		return
 	}
-
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -107,6 +108,51 @@ func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
 	// Response paylog
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Update Success",
+	})
+
+}
+
+func (ctr PaylogControllers) DeletePaylog(c *gin.Context) {
+	// Get paylogID from param
+	paylogIDstring := c.Param("paylogID")
+	paylogIDint64, err1 := strconv.ParseUint(paylogIDstring, 10, 64)
+	if err1 != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get paylogID",
+		})
+		return
+	}
+	paylogID := uint(paylogIDint64)
+
+	// Get userID from token & Chage type to uint
+	userIDInterface, ok := c.Get("user_id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get userIDInterface",
+		})
+		return
+	}
+	userIDInt64, ok := userIDInterface.(int64)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to convert userID into int64",
+		})
+		return
+	}
+	userID := uint(userIDInt64)
+
+	// Delete paylog (service)
+	err2 := paylogService.DeletePaylog(userID, paylogID)
+	if err2 != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err2.Error(),
+		})
+		return
+	}
+
+	// Response paylog
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Delete Success",
 	})
 
 }

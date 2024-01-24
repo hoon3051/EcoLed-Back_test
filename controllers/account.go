@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"github.com/Eco-Led/EcoLed-Back_test/services"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"fmt"
+
+	"github.com/Eco-Led/EcoLed-Back_test/services"
+	
+	"github.com/gin-gonic/gin"
 )
 
 type AccountControllers struct{}
@@ -21,7 +22,6 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 		})
 		return
 	}
-
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -40,6 +40,7 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 		return
 	}
 
+	// Return account
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
 	})
@@ -55,8 +56,6 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 	}
 	page := int(pageInt)
 
-
-	fmt.Println(account.ID)
 	// Get paylogs (service)
 	paylogs, err := paylogService.GetPaylogs(account.ID, page)
 	
@@ -67,6 +66,7 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 		return
 	}
 
+	// Return paylogs
 	c.JSON(http.StatusOK, gin.H{
 		"paylogs": paylogs,
 	})

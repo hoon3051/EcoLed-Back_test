@@ -8,7 +8,7 @@ import (
 
 type RankingServices struct{}
 
-// Return value of GetRanking
+// Ranking Service's return value
 type RankingForm struct {
 	Nickname		string 	`form: "nickname" json: "nickname" binding: "required"`
 	Age				int64 	`form: "age" json: "age" binding: "required"`	
@@ -20,12 +20,10 @@ func (svc RankingServices) GetRanking() (ranking []RankingForm, err error) {
 	// Sort accounts by total_ecoscore
 	var accounts []models.Accounts
 	result := initializers.DB.Order("total_ecoscore desc").Find(&accounts)
-
 	if result.Error != nil {
 		err := errors.New("Failed to get accounts")
 		return ranking, err
 	}
-
 
 	// Get rankingForm date from sorted accounts
 	var currentRank int 
@@ -55,6 +53,6 @@ func (svc RankingServices) GetRanking() (ranking []RankingForm, err error) {
 
 	}
 		
-
 	return ranking, nil
+	
 }

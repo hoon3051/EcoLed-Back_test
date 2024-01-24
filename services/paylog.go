@@ -2,11 +2,13 @@ package services
 
 import (
 	"errors"
+	"time"
+
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
 	"github.com/Eco-Led/EcoLed-Back_test/models"
-	"time"
 )
 
+//Paylog Service's input value (from body)
 type PaylogForm struct {
 	Date    	string 	`form: "date" json: "date" binding: "required"`
 	Time    	string 	`form: "time" json: "time" binding: "required"`
@@ -17,7 +19,6 @@ type PaylogForm struct {
 	Material	string 	`form: "material" json: "material" binding: "required"`
 	Ecoscore 	float64 `form: "ecoscore" json: "ecoscore" binding: "required"`
 }
-
 
 type PaylogServices struct{}
 
@@ -57,6 +58,7 @@ func (svc PaylogServices) CreatePaylog(userID uint, paylog PaylogForm) (err erro
 	}
 
 	return nil
+
 }
 
 func (svc PaylogServices) UpdatePaylog(userID uint, paylogID uint, paylog PaylogForm) (err error) {
@@ -115,12 +117,13 @@ func (svc PaylogServices) UpdatePaylog(userID uint, paylogID uint, paylog Paylog
 	}
 
 	return nil
+
 }
 
 func (svc PaylogServices) GetPaylogs(accountID uint, page int) (paylogs []models.Paylogs, err error) {
 	// Setting page
-	endDate := time.Now().AddDate(0, 0, -page*14)
-	startDate := endDate.AddDate(0, 0, -14)
+	endDate := time.Now().AddDate(0, 0, -page*31)
+	startDate := endDate.AddDate(0, 0, -31)
 	endDateStr := endDate.Format("200601021504")
 	startDateStr := startDate.Format("200601021504")
 
@@ -135,13 +138,56 @@ func (svc PaylogServices) GetPaylogs(accountID uint, page int) (paylogs []models
 		err := errors.New("Failed to get paylogs")
 		return paylogs, err
 	}
-
 	if result.RowsAffected == 0 {
 		err := errors.New("No paylogs found")
 		return paylogs, err
 	}
 
 	return paylogs, nil
+
+}
+
+func (svc PaylogServices) DeletePaylog (userID uint, paylogID uint) (err error) {
+	// Get account
+	var account models.Accounts
+	result := initializers.DB.First(&account, "user_id=?", userID)
+	if result.Error != nil {
+		err := errors.New("Failed to get account")
+		return err
+	}
+
+	// Get paylog
+	var paylog models.Paylogs
+	result = initializers.DB.First(&paylog, "id=?", paylogID)
+	if result.Error != nil {
+		err := errors.New("Failed to get paylog")
+		return err
+	}
+
+	//Check if paylog is owned by user
+	if paylog.Account_id != account.ID {
+		err := errors.New("Paylog is not owned by user")
+		return err
+	}
+
+	// Delete paylog
+	result = initializers.DB.Delete(&paylog)
+	if result.Error != nil {
+		err := errors.New("Failed to delete paylog")
+		return err
+	}
+
+	//Update account
+	account.Total_ecoscore -= paylog.Ecoscore
+	account.Balance += paylog.Cost
+	result = initializers.DB.Save(&account)
+	if result.Error != nil {
+		err := errors.New("Failed to update account")
+		return err
+	}
+
+	return nil
+	
 }
 
 
