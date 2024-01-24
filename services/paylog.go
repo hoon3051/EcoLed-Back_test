@@ -166,10 +166,8 @@ func (svc PaylogServices) DeletePaylog (userID uint, paylogID uint) (err error) 
 
 	//Check if paylog is owned by user
 	if paylog.Account_id != account.ID {
-		err := errors.New("Paylog is not owned by user")
-		return err
+		return errors.New("Paylog is not owned by user")
 	}
-
 	// Delete paylog
 	result = initializers.DB.Delete(&paylog)
 	if result.Error != nil {
