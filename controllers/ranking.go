@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/Eco-Led/EcoLed-Back_test/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type RankingControllers struct{}
