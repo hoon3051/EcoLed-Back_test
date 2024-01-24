@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/Eco-Led/EcoLed-Back_test/forms"
 	"github.com/Eco-Led/EcoLed-Back_test/services"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,20 @@ type UserControllers struct{}
 var userService = new(services.UserServices)
 
 func (ctr UserControllers) Login(c *gin.Context) {
-	// Bind JSON
-	var loginForm services.LoginForm
+	// Bind JSON with forms.LoginForm
+	var loginForm forms.LoginForm
 	if err := c.ShouldBindJSON(&loginForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	// Validate with forms.UserForm
+	userForm := forms.UserForm{}
+	if validationError := userForm.Login(loginForm); validationError != "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": validationError,
 		})
 		return
 	}
@@ -31,8 +41,9 @@ func (ctr UserControllers) Login(c *gin.Context) {
 		return
 	}
 
-	// Response user, token
+	// Response user, token with message
 	c.JSON(http.StatusOK, gin.H{
+		"message": "Login Success",
 		"user":  user,
 		"token": token,
 	})
@@ -40,11 +51,20 @@ func (ctr UserControllers) Login(c *gin.Context) {
 }
 
 func (ctr UserControllers) Register(c *gin.Context) {
-	// Bind JSON
-	var registerForm services.RegisterForm
+	// Bind JSON with forms.RegisterForm
+	var registerForm forms.RegisterForm
 	if err := c.ShouldBindJSON(&registerForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	// Validate with forms.UserForm
+	userForm := forms.UserForm{}
+	if validationError := userForm.Register(registerForm); validationError != "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": validationError,
 		})
 		return
 	}
@@ -58,7 +78,7 @@ func (ctr UserControllers) Register(c *gin.Context) {
 		return
 	}
 
-	// Response
+	// Response with message
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Register Success",
 	})

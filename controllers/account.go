@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/Eco-Led/EcoLed-Back_test/services"
-	
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,19 +13,19 @@ type AccountControllers struct{}
 
 var accountService = new(services.AccountServices)
 
-func (ctr AccountControllers) GetAccount(c *gin.Context){
+func (ctr AccountControllers) GetAccount(c *gin.Context) {
 	// Get userID from token & Chage type to uint
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}
@@ -50,7 +50,7 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 	pageInt, err := strconv.ParseInt(pageString, 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get page",
+			"error": "failed to get page",
 		})
 		return
 	}
@@ -58,7 +58,7 @@ func (ctr AccountControllers) GetAccount(c *gin.Context){
 
 	// Get paylogs (service)
 	paylogs, err := paylogService.GetPaylogs(account.ID, page)
-	
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

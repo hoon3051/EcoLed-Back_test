@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Eco-Led/EcoLed-Back_test/forms"
 	"github.com/Eco-Led/EcoLed-Back_test/services"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ var paylogService = new(services.PaylogServices)
 
 func (ctr PaylogControllers) CreatePaylog(c *gin.Context) {
 	// Bind paylogForm from JSON
-	var paylogForm services.PaylogForm
+	var paylogForm forms.PaylogForm
 	if err := c.ShouldBindJSON(&paylogForm); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -27,7 +28,7 @@ func (ctr PaylogControllers) CreatePaylog(c *gin.Context) {
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
@@ -35,7 +36,7 @@ func (ctr PaylogControllers) CreatePaylog(c *gin.Context) {
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}
@@ -62,32 +63,31 @@ func (ctr PaylogControllers) UpdatePaylog(c *gin.Context) {
 	paylogIDint64, err1 := strconv.ParseUint(paylogIDstring, 10, 64)
 	if err1 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get paylogID",
+			"error": "failed to get paylogID",
 		})
 		return
 	}
 	paylogID := uint(paylogIDint64)
 
-
 	// Get userID from token & Chage type to uint
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}
 	userID := uint(userIDInt64)
 
 	// Get paylogForm from JSON
-	var paylogForm services.PaylogForm
+	var paylogForm forms.PaylogForm
 	if err2 := c.ShouldBindJSON(&paylogForm); err2 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err2.Error(),
@@ -118,7 +118,7 @@ func (ctr PaylogControllers) DeletePaylog(c *gin.Context) {
 	paylogIDint64, err1 := strconv.ParseUint(paylogIDstring, 10, 64)
 	if err1 != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get paylogID",
+			"error": "failed to get paylogID",
 		})
 		return
 	}
@@ -128,14 +128,14 @@ func (ctr PaylogControllers) DeletePaylog(c *gin.Context) {
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}

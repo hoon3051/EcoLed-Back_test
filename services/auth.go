@@ -2,172 +2,90 @@ package services
 
 import (
 	"errors"
-	"regexp"
+	"os"
+	"strconv"
+	"time"
 
+	"github.com/Eco-Led/EcoLed-Back_test/forms"
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
-	"github.com/Eco-Led/EcoLed-Back_test/models"
 
-	"golang.org/x/crypto/bcrypt"
+	jwt "github.com/golang-jwt/jwt/v4"
+	uuid "github.com/google/uuid"
 )
 
-// Login service's return value
-type User struct {
-	Email      string
-	Nickname   string
-	created_at string
+type TokenServices struct{}
+
+func (svc TokenServices) CreateToken(userID int64) (*forms.TokenDetails, error) {
+	td := &forms.TokenDetails{}
+	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
+	td.AccessUUID = uuid.New().String()
+
+	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
+	td.RefreshUUID = uuid.New().String()
+
+	var err error
+	atClaims := jwt.MapClaims{}
+	atClaims["authorized"] = true
+	atClaims["access_uuid"] = td.AccessUUID
+	atClaims["user_id"] = userID
+	atClaims["exp"] = td.AtExpires
+
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+	td.AccessToken, err = at.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+	if err != nil {
+		return nil, err
+	}
+	rtClaims := jwt.MapClaims{}
+	rtClaims["refresh_uuid"] = td.RefreshUUID
+	rtClaims["user_id"] = userID
+	rtClaims["exp"] = td.RtExpires
+	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
+	td.RefreshToken, err = rt.SignedString([]byte(os.Getenv("REFRESH_SECRET")))
+	if err != nil {
+		return nil, err
+	}
+	return td, nil
 }
 
-// Login service's input value (from body)
-type LoginForm struct {
-	Email    string `form: "email" json: "email" binding: "required, email"`
-	Password string `form: "password" json: "password" binding: "required, min=6, max=30"`
-}
+func (svc TokenServices) SaveToken(userid int64, td *forms.TokenDetails) (err error) {
+	at := time.Unix(td.AtExpires, 0)
+	rt := time.Unix(td.RtExpires, 0)
+	now := time.Now()
 
-// Register service's input value (from body)
-type RegisterForm struct {
-	Email       string `form: "email" json: "email" binding: "required, email"`
-	Password    string `form: "password" json: "password" binding: "required, min=6, max=30"`
-	Nickname    string `form: "nickname" json: "nickname" binding: "required, min=2, max=30"`
-	Accountname string `form: "accountname" json: "accountname" binding: "required, min=2, max=30"`
-}
-
-type UserServices struct{}
-
-func (svc UserServices) Login(loginForm LoginForm) (user User, token Token, err error) {
-	//call by value (not call by reference)
-	var userModel = models.Users{}
-	var profileModel = models.Profiles{}
-
-	//call by reference
-	var tokenService = new(TokenServices)
-
-	//From controller, binding value is received. So, check whether the value is valid.
-	initializers.DB.First(&userModel, "email=?", loginForm.Email)
-	initializers.DB.First(&profileModel, "user_id=?", userModel.ID)
-
-	// If the value is not valid, return error
-	if userModel.ID == 0 || profileModel.ID == 0 {
-		err := errors.New("Data does not exist in DB")
-		return user, token, err
+	errAccess := initializers.Redis.Set(td.AccessUUID, strconv.Itoa(int(userid)), at.Sub(now)).Err()
+	if errAccess != nil {
+		return errAccess
 	}
-
-	// Set return value (user)
-	user = User{
-		Email:      userModel.Email,
-		Nickname:   profileModel.Nickname,
-		created_at: userModel.CreatedAt.String(),
+	errRefresh := initializers.Redis.Set(td.RefreshUUID, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
+	if errRefresh != nil {
+		return errRefresh
 	}
-
-	// Compare password
-	err = bcrypt.CompareHashAndPassword([]byte(userModel.Password), []byte(loginForm.Password))
-	if err != nil {
-		err := errors.New("Invalid Password")
-		return user, token, err
-	}
-
-	// Create token
-	td, err := tokenService.CreateToken(int64(userModel.ID))
-	if err != nil {
-		return user, token, err
-	}
-
-	// Save token
-	err = tokenService.SaveToken(int64(userModel.ID), td)
-	if err != nil {
-		return user, token, err
-	}
-
-	// Set return value (token)
-	token = Token{
-		AccessToken:  td.AccessToken,
-		RefreshToken: td.RefreshToken,
-	}
-
-	// Return user, token
-	return user, token, err
-
-}
-
-func (svc UserServices) Register(registerForm RegisterForm) (err error) {
-	//call by value (not call by reference)
-	var userModel = models.Users{}
-	var profileModel = models.Profiles{}
-
-	// Check whether the email is unique
-	initializers.DB.First(&userModel, "email=?", registerForm.Email)
-	if userModel.ID != 0 {
-		err := errors.New("Email already exists")
-		return err
-	}
-
-	//Check whether the nickname is unique
-	initializers.DB.First(&profileModel, "nickname=?", registerForm.Nickname)
-	if profileModel.ID != 0 {
-		err := errors.New("Nickname already exists")
-		return err
-	}
-
-	// Check whether the email is valid
-	regex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	if regex.MatchString(registerForm.Email) == false {
-		err := errors.New("Invalid email")
-		return err
-	}
-
-	// Check whether the nickname is valid
-	if len(registerForm.Nickname) < 2 || len(registerForm.Nickname) > 30 {
-		err := errors.New("Nickname must be between 2 and 30 characters")
-		return err
-	}
-
-	// Check whether the password is valid
-	if len(registerForm.Password) < 4 || len(registerForm.Password) > 30 {
-		err := errors.New("Password must be between 4 and 30 characters")
-		return err
-	}
-
-	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerForm.Password), bcrypt.DefaultCost)
-	if err != nil {
-		err := errors.New("Failed to hash password")
-		return err
-	}
-
-	// Create user
-	user := models.Users{
-		Email:    registerForm.Email,
-		Password: string(hashedPassword),
-	}
-	result := initializers.DB.Create(&user)
-	if result.Error != nil {
-		err := errors.New("Failed to create user")
-		return err
-	}
-
-	// Create profile
-	result = initializers.DB.Create(&models.Profiles{
-		Nickname: registerForm.Nickname,
-		User_id:  user.ID,
-	})
-	if result.Error != nil {
-		err := errors.New("Failed to create profile")
-		return err
-	}
-
-	// Create account
-	result = initializers.DB.Create(&models.Accounts{
-		Name:    registerForm.Accountname,
-		User_id: user.ID,
-	})
-	if result.Error != nil {
-		err := errors.New("Failed to create account")
-		return err
-	}
-
 	return nil
-	
 }
 
-func (svc UserServices) Logout() {
+func (svc TokenServices) ExtractTokenID(tokenString string) (int64, error) {
+	// Parse token
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("ACCESS_SECRET")), nil
+	})
 
+	// Check token
+	if err != nil {
+		return 0, err
+	}
+
+	// Get userID from token
+	userIDValue, ok := claims["user_id"]
+	if !ok {
+		return 0, errors.New("user_id not found in token")
+	}
+
+	// Change type to float64
+	userIDFloat, ok := userIDValue.(float64)
+	if !ok {
+		return 0, errors.New("user_id is not a float64")
+	}
+
+	return int64(userIDFloat), nil
 }

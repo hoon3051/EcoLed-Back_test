@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"path/filepath"
-	"context"
 
 	"github.com/Eco-Led/EcoLed-Back_test/services"
 
@@ -12,10 +12,9 @@ import (
 
 type ProfileImageControllers struct{}
 
-
 // UploadImage uploads image
-func (ctr ProfileImageControllers) UploadProfileImage(c *gin.Context){
-	//By form-data type, file is uploaded 
+func (ctr ProfileImageControllers) UploadProfileImage(c *gin.Context) {
+	//By form-data type, file is uploaded
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -25,7 +24,7 @@ func (ctr ProfileImageControllers) UploadProfileImage(c *gin.Context){
 	}
 	filename := filepath.Base(file.Filename)
 
-	//Open file 
+	//Open file
 	filecontent, _ := file.Open()
 	defer filecontent.Close()
 
@@ -33,21 +32,21 @@ func (ctr ProfileImageControllers) UploadProfileImage(c *gin.Context){
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}
 	userID := uint(userIDInt64)
 
 	//Get imageURL
-	var imageService services.ImageService 
+	var imageService services.ImageService
 	imageURL, err := imageService.UploadProfileImage(context.Background(), filecontent, userID, filename)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -63,19 +62,19 @@ func (ctr ProfileImageControllers) UploadProfileImage(c *gin.Context){
 
 }
 
-func (ctr ProfileImageControllers) DeleteProfileImage(c *gin.Context){
-	// Get userID from token & Chage type to uint 
+func (ctr ProfileImageControllers) DeleteProfileImage(c *gin.Context) {
+	// Get userID from token & Chage type to uint
 	userIDInterface, ok := c.Get("user_id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to get userIDInterface",
+			"error": "failed to get userIDInterface",
 		})
 		return
 	}
 	userIDInt64, ok := userIDInterface.(int64)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to convert userID into int64",
+			"error": "failed to convert userID into int64",
 		})
 		return
 	}
@@ -91,9 +90,9 @@ func (ctr ProfileImageControllers) DeleteProfileImage(c *gin.Context){
 		return
 	}
 
-	//Return imageURL 
+	//Return imageURL
 	c.JSON(http.StatusOK, gin.H{
-		"message":"Success to Delete!",
+		"message": "Success to Delete!",
 	})
-	
+
 }

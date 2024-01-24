@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
-	"fmt"
-	"time"
 	"path"
+	"time"
 
 	"github.com/Eco-Led/EcoLed-Back_test/initializers"
 	"github.com/Eco-Led/EcoLed-Back_test/models"
@@ -19,13 +19,13 @@ import (
 type ImageService struct{}
 
 func (srv ImageService) UploadProfileImage(ctx context.Context, file io.Reader, userID uint, fileName string) (imageURL string, err error) {
-	//Get filename 
+	//Get filename
 	uniqueFilename := time.Now().Format("20060102150405") + "_" + fileName
-	
+
 	// Upload image on Google Cloud Storage
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS1")))
 	if err != nil {
-		err = errors.New("Failed to create client")
+		err = errors.New("failed to create client")
 		return "", err
 	}
 	defer client.Close()
@@ -34,11 +34,11 @@ func (srv ImageService) UploadProfileImage(ctx context.Context, file io.Reader, 
 	bucketName := "ecoled_test_profile_images"
 	wc := client.Bucket(bucketName).Object(uniqueFilename).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		err = errors.New("Failed to upload image1")
+		err = errors.New("failed to upload image1")
 		return "", err
 	}
 	if err := wc.Close(); err != nil {
-		err = errors.New("Failed to upload image2")
+		err = errors.New("failed to upload image2")
 		return "", err
 	}
 
@@ -47,10 +47,10 @@ func (srv ImageService) UploadProfileImage(ctx context.Context, file io.Reader, 
 
 	//Save imageURL to DB
 	result := initializers.DB.Model(&models.Profiles{}).
-	Where("user_id = ?", userID).
-	Update("profile_image", imageURL)
+		Where("user_id = ?", userID).
+		Update("profile_image", imageURL)
 	if result.Error != nil {
-		err = errors.New("Failed to upload profileImage in DB")
+		err = errors.New("failed to upload profileImage in db")
 		return imageURL, err
 	}
 
@@ -62,11 +62,11 @@ func (srv ImageService) UploadProfileImage(ctx context.Context, file io.Reader, 
 func (srv ImageService) UploadPostImage(ctx context.Context, file io.Reader, userID uint, fileName string) (imageURL string, err error) {
 	//Get filename (in Service)
 	uniqueFilename := time.Now().Format("20060102150405") + "_" + fileName
-	
+
 	// Upload image on Google Cloud Storage
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS1")))
 	if err != nil {
-		err = errors.New("Failed to create client")
+		err = errors.New("failed to create client")
 		return "", err
 	}
 	defer client.Close()
@@ -75,28 +75,28 @@ func (srv ImageService) UploadPostImage(ctx context.Context, file io.Reader, use
 	bucketName := "ecoled_test_post_images"
 	wc := client.Bucket(bucketName).Object(uniqueFilename).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		err = errors.New("Failed to upload image1")
+		err = errors.New("failed to upload image1")
 		return "", err
 	}
 	if err := wc.Close(); err != nil {
-		err = errors.New("Failed to upload image2")
+		err = errors.New("failed to upload image2")
 		return "", err
 	}
 
 	//Get imageURL
 	imageURL = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, uniqueFilename)
 
-	//Save imageURL to DB 
+	//Save imageURL to DB
 	var post models.Posts
 	result1 := initializers.DB.Where("user_id = ?", userID).Order("updated_at DESC").First(&post)
 	if result1.Error != nil {
-		err = errors.New("Failed to get last uploaded post")
+		err = errors.New("failed to get last uploaded post")
 		return imageURL, err
 	}
 	post.Image = imageURL
 	result2 := initializers.DB.Save(&post)
 	if result2.Error != nil {
-		err = errors.New("Failed to upload image in DB")
+		err = errors.New("failed to upload image in db")
 		return imageURL, err
 	}
 
@@ -109,7 +109,7 @@ func (svc ImageService) DeleteProfileImage(ctx context.Context, userID uint) (er
 	//Delete image on Google Cloud Storage
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS1")))
 	if err != nil {
-		err = errors.New("Failed to create client")
+		err = errors.New("failed to create client")
 		return err
 	}
 	defer client.Close()
@@ -118,7 +118,7 @@ func (svc ImageService) DeleteProfileImage(ctx context.Context, userID uint) (er
 	var profile models.Profiles
 	result := initializers.DB.Where("user_id = ?", userID).First(&profile)
 	if result.Error != nil {
-		err = errors.New("Failed to get profile")
+		err = errors.New("failed to get profile")
 		return err
 	}
 	fileNameStr := profile.Profile_image
@@ -127,18 +127,18 @@ func (svc ImageService) DeleteProfileImage(ctx context.Context, userID uint) (er
 	//Delete an object with storage.Writer.
 	bucketName := "ecoled_test_profile_images"
 	if err := client.Bucket(bucketName).Object(fileName).Delete(ctx); err != nil {
-		err = errors.New("Failed to delete image")
+		err = errors.New("failed to delete image")
 		return err
 	}
 
-	//Delete imageURL in DB 
+	//Delete imageURL in DB
 	profile.Profile_image = ""
 	result = initializers.DB.Save(&profile)
 	if result.Error != nil {
-		err = errors.New("Failed to delete image in DB")
+		err = errors.New("failed to delete image in db")
 		return err
 	}
-						
+
 	return nil
 
 }
@@ -147,7 +147,7 @@ func (svc ImageService) DeleteImage(ctx context.Context, userID uint, postID uin
 	//Delete image on Google Cloud Storage
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS1")))
 	if err != nil {
-		err = errors.New("Failed to create client")
+		err = errors.New("failed to create client")
 		return err
 	}
 	defer client.Close()
@@ -156,7 +156,7 @@ func (svc ImageService) DeleteImage(ctx context.Context, userID uint, postID uin
 	var post models.Posts
 	result := initializers.DB.Where("id = ?", postID).First(&post)
 	if result.Error != nil {
-		err = errors.New("Failed to get post")
+		err = errors.New("failed to get post")
 		return err
 	}
 	fileNameStr := post.Image
@@ -165,7 +165,7 @@ func (svc ImageService) DeleteImage(ctx context.Context, userID uint, postID uin
 	//Delete an object with storage.Writer.
 	bucketName := "ecoled_test_post_images"
 	if err := client.Bucket(bucketName).Object(fileName).Delete(ctx); err != nil {
-		err = errors.New("Failed to delete image")
+		err = errors.New("failed to delete image")
 		return err
 	}
 
@@ -173,7 +173,7 @@ func (svc ImageService) DeleteImage(ctx context.Context, userID uint, postID uin
 	post.Image = ""
 	result = initializers.DB.Save(&post)
 	if result.Error != nil {
-		err = errors.New("Failed to delete image in DB")
+		err = errors.New("failed to delete image in db")
 		return err
 	}
 

@@ -9,16 +9,15 @@ import (
 
 type AccountServices struct{}
 
-
 func (svc AccountServices) GetAccount(userID uint) (account models.Accounts, err error) {
 	// Get account
 	result := initializers.DB.Where("user_id=?", userID).First(&account)
 	if result.Error != nil {
-		err := errors.New("Failed to get account")
+		err := errors.New("failed to get account")
 		return account, err
 	}
 
 	// Return account
 	return account, nil
-	
+
 }
